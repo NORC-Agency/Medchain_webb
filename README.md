@@ -62,25 +62,45 @@ Scriptet skapar `WORKSPACE_STRUCTURE.md` med en översikt över filer, kategorie
 
 Agentinstruktionen finns i `AGENTS.md`.
 
-## Starta sidan lokalt
+## React-migrering
 
-Dokumentdelen använder nu en lokal backend för uppladdning, förhandsvisning och borttagning av filer.
+Projektet håller nu på att migreras från ren HTML/CSS/JavaScript till `Next.js` och React.
 
-Kör därför sidan med:
+Den nya strukturen ligger i:
+
+- `app/`: Next.js App Router
+- `components/`: React-komponenter för sidan
+- `lib/`: admin- och uppladdningslogik för Next API-rutter
+
+De gamla filerna `index.html`, `styles.css` och `scripts/medchain_server.py` ligger kvar som referens under övergången.
+
+## Starta den nya Next-versionen lokalt
+
+Installera först beroenden:
+
+```bash
+npm install
+```
+
+Starta sedan utvecklingsservern:
+
+```bash
+MEDCHAIN_ADMIN_PASSWORD="välj-ett-lösenord" npm run dev
+```
+
+Öppna därefter:
+
+```text
+http://127.0.0.1:3000
+```
+
+Om du i stället vill köra den äldre lokala prototypversionen med Python-server finns den kvar:
 
 ```bash
 MEDCHAIN_ADMIN_PASSWORD="välj-ett-lösenord" python3 scripts/medchain_server.py
 ```
 
-Öppna sedan:
-
-```text
-http://127.0.0.1:4173
-```
-
-Om sidan öppnas som `file:///...` fungerar inte backend-funktionerna för dokument.
-
-## Adminläge för dokument
+## Adminläge för dokument och use cases
 
 - sidan är öppen för vanliga besökare
 - preview och download är publika
@@ -95,3 +115,51 @@ medchain-admin
 ```
 
 Det är bara tänkt för lokal utveckling och bör bytas innan riktig drift.
+
+## Nästa steg för Vercel
+
+Den nya Next.js-strukturen är gjord för att kunna publiceras på Vercel.
+
+Lagringslagret är nu förberett för två lägen:
+
+- lokal utveckling utan `BLOB_READ_WRITE_TOKEN`
+- Vercel Blob när `BLOB_READ_WRITE_TOKEN` finns satt
+
+När `BLOB_READ_WRITE_TOKEN` är tillgänglig använder `lib/storage.ts`:
+
+- `@vercel/blob` för filuppladdning
+- blobbaserad manifestlagring för `documents` och `use-cases`
+- publika blob-URL:er för preview och download
+
+För lokal utveckling utan token används fortfarande `uploads/` som fallback.
+
+### För att köra mot Vercel Blob
+
+1. Skapa en `public` Blob store i Vercel-projektet
+2. Se till att `BLOB_READ_WRITE_TOKEN` finns som miljövariabel
+3. Starta appen som vanligt med `npm run dev` eller deploya till Vercel
+
+## Första deployen till Vercel
+
+Projektet är nu förberett för import i Vercel:
+
+- `Next.js` identifieras automatiskt
+- `Node 22` är deklarerat i `package.json`
+- `.env.example` visar vilka miljövariabler som behövs
+
+Gör så här:
+
+1. Gå till Vercel Dashboard
+2. Välj `Add New Project`
+3. Importera GitHub-repot `NORC-Agency/Medchain_webb`
+4. Välj branchen du vill deploya från, troligen `johan-test` först
+5. Lägg in miljövariablerna:
+   - `MEDCHAIN_ADMIN_PASSWORD`
+   - `BLOB_READ_WRITE_TOKEN`
+6. Skapa först en `public` Blob store i projektets `Storage`-flik om du inte redan gjort det
+7. Klicka `Deploy`
+
+När projektet väl finns i Vercel blir nästa deploy mycket enklare:
+
+- push till vald branch ger preview deploys
+- merge till `main` kan användas för produktion
