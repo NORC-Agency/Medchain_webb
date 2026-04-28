@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260428-1638" />
   </head>
   <body>
     <header class="site-header">
@@ -183,17 +183,15 @@
       <section class="section-light use-cases" id="use-cases">
         <div class="container">
           <h2>Use Cases</h2>
-          <div class="card-grid">
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
-            <article class="use-card" aria-hidden="true"></article>
+          <div class="documents-shell use-cases-shell">
+            <div class="documents-toolbar">
+              <p class="documents-intro">
+                Upload and manage visual use case material. Preview and download remain available to all visitors.
+              </p>
+              <input id="use-case-input" type="file" multiple />
+            </div>
+            <div class="card-grid use-case-grid" id="use-case-grid"></div>
           </div>
-          <div class="section-chevron" aria-hidden="true"></div>
         </div>
       </section>
 
@@ -213,7 +211,7 @@
               <span class="logo-image-wrap">
                 <img class="partner-logo logo-onemed" src="assets/onemed.png" alt="OneMed" />
               </span>
-              <span class="logo-image-wrap">
+              <span class="logo-image-wrap logo-image-wrap-tamro">
                 <img class="partner-logo logo-tamro" src="assets/tamro.png" alt="Tamro" />
               </span>
               <span class="logo-image-wrap">
@@ -276,7 +274,6 @@
               <p class="documents-intro">
                 Upload shared files, preview them in the browser, and download them when needed. Files are stored persistently in this browser.
               </p>
-              <label class="upload-button" for="shared-doc-input">Upload files</label>
               <input id="shared-doc-input" type="file" multiple />
             </div>
 
@@ -330,6 +327,20 @@
           </div>
         </div>
       </div>
+      <div class="container footer-admin-panel">
+        <p class="footer-admin-label">Admin controls for shared documents and use cases</p>
+        <div class="admin-controls-row footer-admin-controls">
+          <form class="admin-login-form" id="admin-login-form">
+            <input id="admin-password" type="password" placeholder="Admin password" />
+            <button type="submit" class="admin-login-button">Admin login</button>
+          </form>
+          <button type="button" class="admin-logout-button" id="admin-logout-button" hidden>Log out</button>
+          <label class="upload-button" for="use-case-input" id="use-case-upload-button" hidden>Upload use cases</label>
+          <label class="upload-button" for="shared-doc-input" id="upload-button" hidden>Upload files</label>
+        </div>
+        <p class="admin-status footer-admin-status" id="admin-status">Visitor mode: preview and download only</p>
+        <p class="admin-feedback" id="admin-feedback" hidden></p>
+      </div>
     </footer>
     <div class="preview-lightbox" id="preview-lightbox" hidden>
       <div class="preview-lightbox-backdrop" data-close-preview="true"></div>
@@ -371,25 +382,45 @@
       (function () {
         const input = document.getElementById("shared-doc-input");
         const grid = document.getElementById("doc-grid");
+        const useCaseInput = document.getElementById("use-case-input");
+        const useCaseGrid = document.getElementById("use-case-grid");
+        const useCaseUploadButton = document.getElementById("use-case-upload-button");
         const lightbox = document.getElementById("preview-lightbox");
         const lightboxBody = document.getElementById("preview-lightbox-body");
         const lightboxTitle = document.getElementById("preview-lightbox-title");
         const lightboxMeta = document.getElementById("preview-lightbox-meta");
+        const adminLoginForm = document.getElementById("admin-login-form");
+        const adminPassword = document.getElementById("admin-password");
+        const adminStatus = document.getElementById("admin-status");
+        const adminFeedback = document.getElementById("admin-feedback");
+        const adminLogoutButton = document.getElementById("admin-logout-button");
+        const uploadButton = document.getElementById("upload-button");
         const previewClose = document.getElementById("preview-close");
         const previewMinimize = document.getElementById("preview-minimize");
         const previewRestore = document.getElementById("preview-restore");
-        const dbName = "medchain-shared-documents";
-        const storeName = "documents";
-        const objectUrls = new Map();
+        const apiBase = "/api/documents";
+        const adminSessionApi = "/api/admin/session";
+        const adminLoginApi = "/api/admin/login";
+        const adminLogoutApi = "/api/admin/logout";
         let currentPreviewRecord = null;
+        let isAdmin = false;
 
         if (
           !input ||
           !grid ||
+          !useCaseInput ||
+          !useCaseGrid ||
+          !useCaseUploadButton ||
           !lightbox ||
           !lightboxBody ||
           !lightboxTitle ||
           !lightboxMeta ||
+          !adminLoginForm ||
+          !adminPassword ||
+          !adminStatus ||
+          !adminFeedback ||
+          !adminLogoutButton ||
+          !uploadButton ||
           !previewClose ||
           !previewMinimize ||
           !previewRestore
@@ -403,89 +434,38 @@
           return (bytes / (1024 * 1024)).toFixed(1) + " MB";
         }
 
-        function openDatabase() {
-          return new Promise((resolve, reject) => {
-            const request = indexedDB.open(dbName, 1);
-
-            request.onupgradeneeded = () => {
-              const db = request.result;
-              if (!db.objectStoreNames.contains(storeName)) {
-                db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
-              }
-            };
-
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+        function updateAdminUi() {
+          adminLoginForm.hidden = isAdmin;
+          adminLogoutButton.hidden = !isAdmin;
+          uploadButton.hidden = !isAdmin;
+          useCaseUploadButton.hidden = !isAdmin;
+          adminStatus.textContent = isAdmin
+            ? "Admin mode: upload and remove are enabled"
+            : "Visitor mode: preview and download only";
+          grid.querySelectorAll(".doc-card-delete").forEach((button) => {
+            button.hidden = !isAdmin;
+          });
+          useCaseGrid.querySelectorAll(".doc-card-delete").forEach((button) => {
+            button.hidden = !isAdmin;
           });
         }
 
-        function runTransaction(mode, handler) {
-          return openDatabase().then(
-            (db) =>
-              new Promise((resolve, reject) => {
-                const transaction = db.transaction(storeName, mode);
-                const store = transaction.objectStore(storeName);
-                const result = handler(store);
-
-                transaction.oncomplete = () => {
-                  db.close();
-                  resolve(result);
-                };
-                transaction.onerror = () => {
-                  db.close();
-                  reject(transaction.error);
-                };
-              })
-          );
+        function setAdminFeedback(message, tone) {
+          adminFeedback.hidden = !message;
+          adminFeedback.textContent = message || "";
+          adminFeedback.dataset.tone = tone || "";
         }
 
-        function addDocument(record) {
-          return openDatabase().then(
-            (db) =>
-              new Promise((resolve, reject) => {
-                const transaction = db.transaction(storeName, "readwrite");
-                const store = transaction.objectStore(storeName);
-                const request = store.add(record);
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-                transaction.oncomplete = () => db.close();
-                transaction.onerror = () => {
-                  db.close();
-                  reject(transaction.error);
-                };
-              })
-          );
-        }
-
-        function getAllDocuments() {
-          return openDatabase().then(
-            (db) =>
-              new Promise((resolve, reject) => {
-                const transaction = db.transaction(storeName, "readonly");
-                const store = transaction.objectStore(storeName);
-                const request = store.getAll();
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-                transaction.oncomplete = () => db.close();
-                transaction.onerror = () => {
-                  db.close();
-                  reject(transaction.error);
-                };
-              })
-          );
-        }
-
-        function deleteDocument(id) {
-          return runTransaction("readwrite", (store) => store.delete(id));
-        }
-
-        function getUrl(record) {
-          if (!objectUrls.has(record.id)) {
-            objectUrls.set(record.id, URL.createObjectURL(record.file));
+        async function refreshAdminSession() {
+          const response = await fetch(adminSessionApi, { credentials: "same-origin" });
+          if (!response.ok) {
+            isAdmin = false;
+            updateAdminUi();
+            return;
           }
-          return objectUrls.get(record.id);
+          const payload = await response.json();
+          isAdmin = Boolean(payload.authenticated);
+          updateAdminUi();
         }
 
         function closePreview(clearRecord) {
@@ -521,7 +501,7 @@
 
           if (record.type.startsWith("image/")) {
             const img = document.createElement("img");
-            img.src = getUrl(record);
+            img.src = record.url;
             img.alt = record.name;
             lightboxBody.replaceChildren(img);
             return;
@@ -529,7 +509,7 @@
 
           if (record.type === "application/pdf") {
             const iframe = document.createElement("iframe");
-            iframe.src = getUrl(record);
+            iframe.src = record.url;
             iframe.title = record.name;
             lightboxBody.replaceChildren(iframe);
             return;
@@ -542,7 +522,8 @@
             record.name.endsWith(".json")
           ) {
             const pre = document.createElement("pre");
-            pre.textContent = await record.file.text();
+            const response = await fetch(record.url);
+            pre.textContent = await response.text();
             lightboxBody.replaceChildren(pre);
             return;
           }
@@ -554,7 +535,26 @@
           lightboxBody.replaceChildren(message);
         }
 
-        function createCard(record) {
+        function createActionIcon(type) {
+          const span = document.createElement("span");
+          span.className = "doc-card-action-icon";
+          span.setAttribute("aria-hidden", "true");
+
+          if (type === "preview") {
+            span.innerHTML =
+              '<svg viewBox="0 0 24 24" focusable="false"><path d="M1.5 12s3.8-6 10.5-6 10.5 6 10.5 6-3.8 6-10.5 6S1.5 12 1.5 12Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+          } else if (type === "download") {
+            span.innerHTML =
+              '<svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.5v10.2m0 0 4-4m-4 4-4-4M4 18.5h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          } else {
+            span.innerHTML =
+              '<svg viewBox="0 0 24 24" focusable="false"><path d="M5 7.5h14m-11.5 0 .8 11h7.4l.8-11M9.5 7.5V5.2h5V7.5M10 11v4.6m4-4.6v4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          }
+
+          return span;
+        }
+
+        function createCard(record, apiRoot) {
           const article = document.createElement("article");
           article.className = "doc-card doc-card-file";
           article.dataset.documentId = String(record.id);
@@ -580,13 +580,13 @@
 
           if (record.type.startsWith("image/")) {
             const img = document.createElement("img");
-            img.src = getUrl(record);
+            img.src = record.url;
             img.alt = record.name;
             img.className = "doc-card-surface-media";
             surface.append(img);
           } else if (record.type === "application/pdf") {
             const iframe = document.createElement("iframe");
-            iframe.src = getUrl(record) + "#page=1&toolbar=0&navpanes=0&scrollbar=0";
+            iframe.src = record.url + "#page=1&toolbar=0&navpanes=0&scrollbar=0";
             iframe.title = record.name;
             iframe.className = "doc-card-surface-media";
             surface.append(iframe);
@@ -598,8 +598,8 @@
           ) {
             const snippet = document.createElement("div");
             snippet.className = "doc-card-surface-text";
-            record.file
-              .text()
+            fetch(record.url)
+              .then((response) => response.text())
               .then((text) => {
                 snippet.textContent = text.slice(0, 320) || "Text document";
               })
@@ -619,26 +619,36 @@
 
           const previewButton = document.createElement("button");
           previewButton.type = "button";
-          previewButton.textContent = "Preview";
+          previewButton.title = "Preview";
+          previewButton.setAttribute("aria-label", "Preview");
+          previewButton.append(createActionIcon("preview"));
           previewButton.addEventListener("click", () => renderPreview(record));
 
           const downloadLink = document.createElement("a");
-          downloadLink.href = getUrl(record);
+          downloadLink.href = record.url;
           downloadLink.download = record.name;
-          downloadLink.textContent = "Download";
+          downloadLink.title = "Download";
+          downloadLink.setAttribute("aria-label", "Download");
+          downloadLink.append(createActionIcon("download"));
 
           const deleteButton = document.createElement("button");
           deleteButton.type = "button";
           deleteButton.className = "doc-card-delete";
-          deleteButton.textContent = "Remove";
+          deleteButton.title = "Remove";
+          deleteButton.setAttribute("aria-label", "Remove");
+          deleteButton.append(createActionIcon("delete"));
+          deleteButton.hidden = !isAdmin;
           deleteButton.addEventListener("click", async () => {
-            await deleteDocument(record.id);
-            const currentUrl = objectUrls.get(record.id);
-            if (currentUrl) {
-              URL.revokeObjectURL(currentUrl);
-              objectUrls.delete(record.id);
+            const response = await fetch(apiRoot + "/" + record.id, {
+              method: "DELETE",
+              credentials: "same-origin",
+            });
+            if (!response.ok) {
+              setAdminFeedback("Remove failed. Please confirm admin login and try again.", "error");
+              return;
             }
             article.remove();
+            setAdminFeedback("Item removed.", "success");
             if (currentPreviewRecord && currentPreviewRecord.id === record.id) {
               closePreview(true);
             }
@@ -649,41 +659,96 @@
           return article;
         }
 
-        function appendCard(record) {
-          grid.prepend(createCard(record));
+        function appendCard(targetGrid, record, apiRoot) {
+          targetGrid.prepend(createCard(record, apiRoot));
         }
 
-        async function loadStoredDocuments() {
-          const records = await getAllDocuments();
+        function clearCards(targetGrid) {
+          targetGrid.replaceChildren();
+        }
+
+        async function loadCollection(apiRoot, targetGrid) {
+          const response = await fetch(apiRoot);
+          if (!response.ok) {
+            throw new Error("Unable to load collection");
+          }
+          const records = await response.json();
+          clearCards(targetGrid);
           records
-            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-            .forEach((record) => appendCard(record));
+            .sort((a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0))
+            .forEach((record) => appendCard(targetGrid, record, apiRoot));
         }
 
-        input.addEventListener("change", async (event) => {
+        async function handleUpload(event, apiRoot, targetGrid) {
           const files = Array.from(event.target.files || []);
-          for (const file of files) {
-            const record = {
-              name: file.name,
-              type: file.type || "File",
-              size: file.size,
-              lastModified: file.lastModified,
-              createdAt: Date.now(),
-              file,
-            };
-            const id = await addDocument(record);
-            appendCard({ ...record, id });
+          if (!files.length) {
+            return;
           }
 
-          if (files[0]) {
-            const records = await getAllDocuments();
-            const latest = records.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0];
-            if (latest) {
-              await renderPreview(latest);
+          const formData = new FormData();
+          files.forEach((file) => formData.append("files", file));
+          const response = await fetch(apiRoot, {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+          });
+          if (!response.ok) {
+            if (response.status === 401) {
+              isAdmin = false;
+              updateAdminUi();
+              setAdminFeedback("Admin login is required before files can be uploaded.", "error");
+            } else {
+              setAdminFeedback("Upload failed. Please try again.", "error");
             }
+            event.target.value = "";
+            return;
+          }
+          const createdRecords = await response.json();
+          await loadCollection(apiRoot, targetGrid);
+          setAdminFeedback("Upload complete.", "success");
+
+          if (createdRecords[0]) {
+            await renderPreview(createdRecords[0]);
           }
 
-          input.value = "";
+          event.target.value = "";
+        }
+
+        input.addEventListener("change", (event) => handleUpload(event, apiBase, grid));
+        useCaseInput.addEventListener("change", (event) =>
+          handleUpload(event, "/api/use-cases", useCaseGrid)
+        );
+
+        adminLoginForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const password = adminPassword.value.trim();
+          if (!password) {
+            return;
+          }
+          const response = await fetch(adminLoginApi, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ password }),
+          });
+          if (!response.ok) {
+            adminStatus.textContent = "Admin login failed";
+            setAdminFeedback("Admin login failed. Please check the password.", "error");
+            adminPassword.value = "";
+            return;
+          }
+          adminPassword.value = "";
+          setAdminFeedback("Admin login successful.", "success");
+          await refreshAdminSession();
+        });
+
+        adminLogoutButton.addEventListener("click", async () => {
+          await fetch(adminLogoutApi, {
+            method: "POST",
+            credentials: "same-origin",
+          });
+          setAdminFeedback("Logged out.", "success");
+          await refreshAdminSession();
         });
 
         previewClose.addEventListener("click", () => closePreview(true));
@@ -704,10 +769,15 @@
           }
         });
 
-        loadStoredDocuments().catch(() => {
-          lightboxTitle.textContent = "Document storage unavailable";
-          lightboxMeta.textContent =
-            "This browser blocked local document storage. You can still refresh after allowing IndexedDB.";
+        Promise.all([
+          refreshAdminSession(),
+          loadCollection(apiBase, grid),
+          loadCollection("/api/use-cases", useCaseGrid),
+        ]).catch(() => {
+          grid.innerHTML =
+            '<article class="doc-card doc-card-file"><div class="doc-card-file-top"><p class="doc-card-kicker">Backend unavailable</p><h3>Start the MedChain backend server</h3><p>The document area now requires the local API server to be running.</p></div></article>';
+          useCaseGrid.innerHTML =
+            '<article class="doc-card doc-card-file"><div class="doc-card-file-top"><p class="doc-card-kicker">Backend unavailable</p><h3>Start the MedChain backend server</h3><p>The use case area now requires the local API server to be running.</p></div></article>';
         });
       })();
     </script>
