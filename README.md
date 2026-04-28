@@ -47,3 +47,51 @@ Vi vill hålla arbetssättet så enkelt som möjligt:
 - `main` som stabil version
 - issues för planering
 - pull requests för att föra in färdiga ändringar
+
+## Filstruktur-agent
+
+Projektet har en enkel lokal agentfunktion för att hålla arbetsfilerna begripliga.
+
+Kör:
+
+```bash
+python3 scripts/structure_work_files.py
+```
+
+Scriptet skapar `WORKSPACE_STRUCTURE.md` med en översikt över filer, kategorier och konkreta förslag. Det flyttar eller tar inte bort något automatiskt.
+
+Agentinstruktionen finns i `AGENTS.md`.
+
+## Starta sidan lokalt
+
+Dokumentdelen använder nu en lokal backend för uppladdning, förhandsvisning och borttagning av filer.
+
+Kör därför sidan med:
+
+```bash
+MEDCHAIN_ADMIN_PASSWORD="välj-ett-lösenord" python3 scripts/medchain_server.py
+```
+
+Öppna sedan:
+
+```text
+http://127.0.0.1:4173
+```
+
+Om sidan öppnas som `file:///...` fungerar inte backend-funktionerna för dokument.
+
+## Adminläge för dokument
+
+- sidan är öppen för vanliga besökare
+- preview och download är publika
+- upload och remove kräver admin-login
+
+Adminlösenordet styrs av miljövariabeln `MEDCHAIN_ADMIN_PASSWORD`.
+
+Om du inte sätter något lösenord används standardvärdet:
+
+```text
+medchain-admin
+```
+
+Det är bara tänkt för lokal utveckling och bör bytas innan riktig drift.
