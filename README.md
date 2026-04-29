@@ -72,7 +72,9 @@ Den nya strukturen ligger i:
 - `components/`: React-komponenter för sidan
 - `lib/`: admin- och uppladdningslogik för Next API-rutter
 
-De gamla filerna `index.html`, `styles.css` och `scripts/medchain_server.py` ligger kvar som referens under övergången.
+Den publika kodbasen utgår nu från `app/`, `components/` och `lib/`.
+
+Äldre arbetsfiler och interna strukturfiler hålls lokalt utanför den publika repo-versionen.
 
 ## Starta den nya Next-versionen lokalt
 

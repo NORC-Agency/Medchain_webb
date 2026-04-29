@@ -3,3 +3,9 @@ node_modules
 .DS_Store
 uploads/*
 !uploads/.gitkeep
+AGENTS.md
+WORKSPACE_STRUCTURE.md
+assets/MedChain-webb-skiss.pdf
+index.html
+styles.css
+scripts/medchain_server.py
