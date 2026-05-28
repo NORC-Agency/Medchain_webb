@@ -8,6 +8,9 @@ type RouteContext = {
   params: Promise<{ collection: string }>;
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(_: Request, context: RouteContext) {
   const { collection } = await context.params;
 
@@ -16,7 +19,13 @@ export async function GET(_: Request, context: RouteContext) {
   }
 
   const records = await listRecords(collection);
-  return NextResponse.json(records);
+  return NextResponse.json(records, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  });
 }
 
 export async function POST(request: Request, context: RouteContext) {
@@ -39,6 +48,12 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "No files uploaded" }, { status: 400 });
   }
 
-  const records = await uploadFiles(collection, files);
-  return NextResponse.json(records, { status: 201 });
+  try {
+    const records = await uploadFiles(collection, files);
+    return NextResponse.json(records, { status: 201 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Upload failed because storage is unavailable.";
+    return NextResponse.json({ error: message }, { status: 503 });
+  }
 }

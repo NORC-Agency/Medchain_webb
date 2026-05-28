@@ -1,5 +1,5 @@
 {
-  "name": "medchain-webb",
+  "name": "norc-budget-app",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -7,13 +7,12 @@
   },
   "scripts": {
     "dev": "next dev",
-    "dev:local": "next dev --hostname 127.0.0.1 --port 4173",
+    "dev:local": "next dev --hostname 127.0.0.1 --port 4174",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
-    "@vercel/blob": "^2.3.3",
+    "exceljs": "^4.4.0",
     "next": "^15.5.16",
     "react": "19.1.0",
     "react-dom": "19.1.0"

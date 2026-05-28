@@ -16,6 +16,17 @@ export type StoredRecord = {
 };
 
 type BlobSdk = typeof import("@vercel/blob");
+type StoredFilePayload =
+  | {
+      record: StoredRecord;
+      buffer: Buffer;
+    }
+  | {
+      record: StoredRecord;
+      stream: ReadableStream<Uint8Array>;
+      contentType: string;
+      size: number;
+    };
 
 const ROOT_DIR = process.cwd();
 const UPLOADS_DIR = path.join(ROOT_DIR, "uploads");
@@ -34,6 +45,23 @@ const COLLECTIONS: Record<CollectionName, { metadata: string; folder: string }> 
 
 let cachedBlobSdk: BlobSdk | null = null;
 
+const MIME_TYPES: Record<string, string> = {
+  ".csv": "text/csv",
+  ".doc": "application/msword",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
+  ".json": "application/json",
+  ".md": "text/markdown",
+  ".pdf": "application/pdf",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".txt": "text/plain",
+  ".webp": "image/webp",
+  ".xls": "application/vnd.ms-excel",
+  ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+};
+
 function safeFilename(name: string) {
   const ext = path.extname(name).replace(/[^A-Za-z0-9]/g, "").slice(0, 10);
   const stem =
@@ -45,8 +73,14 @@ function safeFilename(name: string) {
   return ext ? `${stem}.${ext}` : stem;
 }
 
+function buildInternalFileUrl(collection: CollectionName, storedName: string) {
+  const segments = storedName.split("/").map((segment) => encodeURIComponent(segment));
+  return `/api/files/${collection}/${segments.join("/")}`;
+}
+
 function normalizeRecord(collection: CollectionName, record: Partial<StoredRecord>): StoredRecord {
   const storedName = record.storedName ?? "";
+  const localUrl = storedName ? buildInternalFileUrl(collection, storedName) : "";
   return {
     id: record.id ?? randomUUID(),
     name: record.name ?? "Unknown file",
@@ -55,14 +89,38 @@ function normalizeRecord(collection: CollectionName, record: Partial<StoredRecor
     createdAt: record.createdAt ?? new Date().toISOString(),
     collection,
     storedName,
-    url:
-      record.url ??
-      (storedName ? `/api/files/${collection}/${encodeURIComponent(storedName)}` : ""),
+    url: localUrl,
   };
 }
 
 function manifestPathname(collection: CollectionName) {
   return `manifests/${collection}.json`;
+}
+
+function inferMimeType(filename: string) {
+  return MIME_TYPES[path.extname(filename).toLowerCase()] ?? "application/octet-stream";
+}
+
+function blobRecordFromStoredName(
+  collection: CollectionName,
+  storedName: string,
+  options?: {
+    size?: number;
+    createdAt?: string;
+    type?: string;
+  },
+) {
+  const [, idSegment, ...nameSegments] = storedName.split("/");
+  const name = decodeURIComponent(nameSegments.join("/") || "file");
+
+  return normalizeRecord(collection, {
+    id: idSegment || storedName,
+    storedName,
+    name,
+    type: options?.type ?? inferMimeType(name),
+    size: options?.size ?? 0,
+    createdAt: options?.createdAt,
+  });
 }
 
 async function getBlobSdk() {
@@ -94,6 +152,12 @@ export function isCollectionName(value: string): value is CollectionName {
   return value === "documents" || value === "use-cases";
 }
 
+export function ensureWritableStorage() {
+  if (!USE_BLOB_STORAGE && process.env.VERCEL) {
+    throw new Error("Blob storage is not configured for this Vercel deployment.");
+  }
+}
+
 async function listLocalRecords(collection: CollectionName) {
   await ensureLocalStorage();
   const { metadata } = getCollectionConfig(collection);
@@ -118,16 +182,16 @@ async function saveLocalRecords(collection: CollectionName, records: StoredRecor
 }
 
 async function readBlobManifest(collection: CollectionName) {
-  const { head } = await getBlobSdk();
+  const { get } = await getBlobSdk();
 
   try {
-    const manifestBlob = await head(manifestPathname(collection));
-    const response = await fetch(manifestBlob.url, { cache: "no-store" });
-    if (!response.ok) {
+    const manifestBlob = await get(manifestPathname(collection), { access: "private" });
+    if (!manifestBlob || manifestBlob.statusCode !== 200 || !manifestBlob.stream) {
       return [] as StoredRecord[];
     }
 
-    const records = (await response.json()) as Partial<StoredRecord>[];
+    const contents = await new Response(manifestBlob.stream).text();
+    const records = JSON.parse(contents) as Partial<StoredRecord>[];
     return records
       .map((record) => normalizeRecord(collection, record))
       .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt));
@@ -139,7 +203,7 @@ async function readBlobManifest(collection: CollectionName) {
 async function saveBlobManifest(collection: CollectionName, records: StoredRecord[]) {
   const { put } = await getBlobSdk();
   await put(manifestPathname(collection), JSON.stringify(records, null, 2), {
-    access: "public",
+    access: "private",
     allowOverwrite: true,
     addRandomSuffix: false,
     contentType: "application/json; charset=utf-8",
@@ -149,7 +213,29 @@ async function saveBlobManifest(collection: CollectionName, records: StoredRecor
 
 export async function listRecords(collection: CollectionName) {
   if (USE_BLOB_STORAGE) {
-    return readBlobManifest(collection);
+    const { list } = await getBlobSdk();
+    const blobs: Awaited<ReturnType<typeof list>>["blobs"] = [];
+    let cursor: string | undefined;
+
+    do {
+      const response = await list({
+        prefix: `${collection}/`,
+        cursor,
+        limit: 1000,
+      });
+
+      blobs.push(...response.blobs);
+      cursor = response.hasMore ? response.cursor : undefined;
+    } while (cursor);
+
+    return blobs
+      .map((blob) =>
+        blobRecordFromStoredName(collection, blob.pathname, {
+          size: blob.size,
+          createdAt: blob.uploadedAt.toISOString(),
+        }),
+      )
+      .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt));
   }
 
   return listLocalRecords(collection);
@@ -189,13 +275,12 @@ async function uploadLocalFiles(collection: CollectionName, files: File[]) {
 
 async function uploadBlobFiles(collection: CollectionName, files: File[]) {
   const { put } = await getBlobSdk();
-  const records = await readBlobManifest(collection);
   const createdRecords: StoredRecord[] = [];
 
   for (const file of files) {
     const id = randomUUID();
     const blob = await put(`${collection}/${id}/${safeFilename(file.name)}`, file, {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
       contentType: file.type || "application/octet-stream",
       cacheControlMaxAge: 60 * 60 * 24 * 30,
@@ -209,18 +294,17 @@ async function uploadBlobFiles(collection: CollectionName, files: File[]) {
       createdAt: new Date().toISOString(),
       collection,
       storedName: blob.pathname,
-      url: blob.url,
+      url: buildInternalFileUrl(collection, blob.pathname),
     };
 
-    records.push(record);
     createdRecords.push(record);
   }
-
-  await saveBlobManifest(collection, records);
   return createdRecords;
 }
 
 export async function uploadFiles(collection: CollectionName, files: File[]) {
+  ensureWritableStorage();
+
   if (USE_BLOB_STORAGE) {
     return uploadBlobFiles(collection, files);
   }
@@ -251,20 +335,28 @@ async function deleteLocalRecord(collection: CollectionName, recordId: string) {
 
 async function deleteBlobRecord(collection: CollectionName, recordId: string) {
   const { del } = await getBlobSdk();
-  const records = await readBlobManifest(collection);
+  const records = await listRecords(collection);
   const record = records.find((item) => item.id === recordId);
 
   if (!record) {
     return null;
   }
 
-  const remaining = records.filter((item) => item.id !== recordId);
-  await del(record.url || record.storedName);
-  await saveBlobManifest(collection, remaining);
+  try {
+    await del(record.storedName);
+  } catch {
+    if (record.url) {
+      await del(record.url);
+    } else {
+      throw new Error("Unable to delete blob record");
+    }
+  }
   return record;
 }
 
 export async function deleteRecord(collection: CollectionName, recordId: string) {
+  ensureWritableStorage();
+
   if (USE_BLOB_STORAGE) {
     return deleteBlobRecord(collection, recordId);
   }
@@ -273,6 +365,27 @@ export async function deleteRecord(collection: CollectionName, recordId: string)
 }
 
 export async function readStoredFile(collection: CollectionName, storedName: string) {
+  if (USE_BLOB_STORAGE) {
+    const { get } = await getBlobSdk();
+    const result = await get(storedName, { access: "private" });
+
+    if (!result || result.statusCode !== 200 || !result.stream) {
+      return null;
+    }
+
+    const record = blobRecordFromStoredName(collection, storedName, {
+      type: result.blob.contentType || "application/octet-stream",
+      size: result.blob.size || 0,
+    });
+
+    return {
+      record,
+      stream: result.stream,
+      contentType: result.blob.contentType || record.type,
+      size: result.blob.size || record.size,
+    } satisfies StoredFilePayload;
+  }
+
   const filePath = path.join(getCollectionConfig(collection).folder, storedName);
   const records = await listLocalRecords(collection);
   const record = records.find((item) => item.storedName === storedName);
@@ -296,5 +409,5 @@ export async function readStoredFile(collection: CollectionName, storedName: str
   }
 
   const buffer = await readFile(resolvedPath);
-  return { buffer, record };
+  return { buffer, record } satisfies StoredFilePayload;
 }

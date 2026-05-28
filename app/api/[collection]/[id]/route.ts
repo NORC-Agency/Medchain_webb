@@ -19,7 +19,16 @@ export async function DELETE(_: Request, context: RouteContext) {
     return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
   }
 
-  const deleted = await deleteRecord(collection, id);
+  let deleted;
+
+  try {
+    deleted = await deleteRecord(collection, id);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Delete failed because storage is unavailable.";
+    return NextResponse.json({ error: message }, { status: 503 });
+  }
+
   if (!deleted) {
     return NextResponse.json({ error: "Document not found" }, { status: 404 });
   }

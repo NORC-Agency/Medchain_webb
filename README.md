@@ -76,31 +76,52 @@ Den publika kodbasen utgår nu från `app/`, `components/` och `lib/`.
 
 Äldre arbetsfiler och interna strukturfiler hålls lokalt utanför den publika repo-versionen.
 
-## Starta den nya Next-versionen lokalt
+## Superenkelt lokalt arbetsflöde
 
-Installera först beroenden:
+Det här är den rekommenderade vardagsrutinen när du vill fortsätta utveckla sidan lokalt utan att deploya till Vercel.
+
+### Första gången
 
 ```bash
+cd "/Users/johansandersnas/Documents/New project"
 npm install
 ```
 
-Starta sedan utvecklingsservern:
+### Varje gång du börjar jobba
 
 ```bash
-MEDCHAIN_ADMIN_PASSWORD="välj-ett-lösenord" npm run dev
+cd "/Users/johansandersnas/Documents/New project"
+git checkout johan-test
+git pull origin johan-test
+npm run dev:local
 ```
 
-Öppna därefter:
+Öppna sedan:
 
 ```text
-http://127.0.0.1:3000
+http://127.0.0.1:4173
 ```
 
-Om du i stället vill köra den äldre lokala prototypversionen med Python-server finns den kvar:
+### När du jobbar
+
+- ändra filer lokalt
+- spara
+- uppdatera browsern om det behövs
+- Next uppdaterar ofta sidan automatiskt direkt
+
+### När du vill spara arbetet till GitHub
 
 ```bash
-MEDCHAIN_ADMIN_PASSWORD="välj-ett-lösenord" python3 scripts/medchain_server.py
+git add .
+git commit -m "Beskriv ändringen"
+git push origin johan-test
 ```
+
+### När du vill ha en online-preview igen
+
+- pusha till `johan-test`
+- låt Vercel bygga en preview
+- använd Vercel först när du vill testa den riktiga hostade versionen
 
 ## Adminläge för dokument och use cases
 

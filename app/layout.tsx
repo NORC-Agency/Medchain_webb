@@ -5,14 +5,13 @@ import "./globals.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-display",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "MedChain",
-  description:
-    "MedChain connects healthcare, industry, and national resilience through a consortium-led platform.",
+  description: "Consortium-led initiative connecting healthcare, industry, and national resilience.",
 };
 
 export default function RootLayout({
@@ -21,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={poppins.variable}>{children}</body>
+    <html lang="sv">
+      <body className={poppins.className}>{children}</body>
     </html>
   );
 }

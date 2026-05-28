@@ -1,0 +1,27 @@
+{
+  "document_type": "OFFER",
+  "date": "{{date}}",
+  "client": "{{client}}",
+  "client_contact": "{{client_contact}}",
+  "project_number": "{{project_number}}",
+  "project": "{{project}}",
+  "headline": "{{partnership_headline}}",
+  "intro": [
+    "{{client_capability_statement}}",
+    "NORC brings Nordic market understanding, strategic positioning, communication and trust-building.",
+    "{{joint_ambition_statement}}"
+  ],
+  "modules": [
+    "standard/engagement-principle",
+    "modules/phase-start",
+    "modules/market-assets",
+    "modules/pilot-outreach",
+    "modules/out-of-scope",
+    "modules/phase-scale",
+    "modules/phase-sustain",
+    "standard/recommended-approach",
+    "standard/om-norc",
+    "standard/viable-solutions",
+    "standard/kontakt"
+  ]
+}

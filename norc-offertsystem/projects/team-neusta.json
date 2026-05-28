@@ -1,0 +1,27 @@
+{
+  "document_type": "OFFER",
+  "date": "2026-05-05",
+  "client": "Team Neusta",
+  "client_contact": "Klaudia Kruger / André Conin",
+  "project_number": "1",
+  "project": "Nordic Market Entry & Positioning Partnership",
+  "headline": "NORC x Safespring x Team Neusta",
+  "intro": [
+    "Team Neusta brings digital scale, engineering depth and transformation capacity.",
+    "NORC brings Nordic market understanding, strategic positioning, communication and trust-building.",
+    "Together, the ambition is to establish a credible and commercially viable position in the Nordic market."
+  ],
+  "modules": [
+    "standard/engagement-principle",
+    "modules/phase-start",
+    "modules/market-assets",
+    "modules/pilot-outreach",
+    "modules/out-of-scope",
+    "modules/phase-scale",
+    "modules/phase-sustain",
+    "standard/recommended-approach",
+    "standard/om-norc",
+    "standard/viable-solutions",
+    "standard/kontakt"
+  ]
+}

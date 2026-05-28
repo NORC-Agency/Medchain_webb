@@ -9,3 +9,5 @@ assets/MedChain-webb-skiss.pdf
 index.html
 styles.css
 scripts/medchain_server.py
+.vercel
+.env*.local

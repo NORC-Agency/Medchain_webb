@@ -40,8 +40,25 @@ type ConsortiumGroup = {
   compact?: boolean;
   large?: boolean;
   id?: string;
+  className?: string;
+  gridClassName?: string;
   logos: ConsortiumLogo[];
 };
+
+function consortiumLogo(
+  src: string,
+  alt: string,
+  wrapClassName = "logo-image-wrap",
+  imageClassName = "partner-logo",
+): ConsortiumLogo {
+  return {
+    kind: "image",
+    src,
+    alt,
+    wrapClassName,
+    imageClassName,
+  };
+}
 
 const HOTSPOTS: Hotspot[] = [
   {
@@ -128,60 +145,119 @@ const CONSORTIUM_GROUPS: ConsortiumGroup[] = [
     title: "Industry & Distribution",
     description: "Ensures real-world anchoring",
     compact: true,
+    className: "consortium-group-industry",
+    gridClassName: "logo-grid-industry",
     logos: [
-      {
-        kind: "image" as const,
-        src: "/assets/astrazeneca.png",
-        alt: "AstraZeneca",
-        wrapClassName: "logo-image-wrap logo-image-wrap-astrazeneca",
-        imageClassName: "partner-logo logo-astrazeneca",
-      },
-      {
-        kind: "image" as const,
-        src: "/assets/onemed.png",
-        alt: "OneMed",
-        wrapClassName: "logo-image-wrap",
-        imageClassName: "partner-logo logo-onemed",
-      },
-      {
-        kind: "image" as const,
-        src: "/assets/tamro.png",
-        alt: "Tamro",
-        wrapClassName: "logo-image-wrap logo-image-wrap-tamro",
-        imageClassName: "partner-logo logo-tamro",
-      },
-      {
-        kind: "image" as const,
-        src: "/assets/softpro.png",
-        alt: "SoftPro Medical Solutions",
-        wrapClassName: "logo-image-wrap",
-        imageClassName: "partner-logo logo-softpro",
-      },
+      consortiumLogo(
+        "/assets/consortium/astrazeneca.png",
+        "AstraZeneca",
+        "logo-image-wrap logo-image-wrap-astrazeneca",
+        "partner-logo logo-astrazeneca",
+      ),
+      consortiumLogo(
+        "/assets/consortium/onemed.png",
+        "OneMed",
+        "logo-image-wrap logo-image-wrap-onemed",
+        "partner-logo logo-onemed",
+      ),
+      consortiumLogo(
+        "/assets/consortium/tamro.png",
+        "Tamro",
+        "logo-image-wrap logo-image-wrap-tamro",
+        "partner-logo logo-tamro",
+      ),
+      consortiumLogo(
+        "/assets/consortium/softpro.png",
+        "SoftPro Medical Solutions",
+        "logo-image-wrap logo-image-wrap-softpro",
+        "partner-logo logo-softpro",
+      ),
     ],
   },
   {
-    title: "Teknology & Infrastructure",
+    title: "Technology & Infrastructure",
     description: "Builds the digital backbone",
-    logos: ["Grantio", "Safespring", "Skygri", "Intended Future", "Viable Solution"],
+    className: "consortium-group-technology",
+    gridClassName: "logo-grid-technology",
+    logos: [
+      consortiumLogo("/assets/consortium/igrantio.png", "iGrantio", "logo-image-wrap", "partner-logo logo-igrantio"),
+      consortiumLogo("/assets/consortium/safespring.png", "Safespring", "logo-image-wrap", "partner-logo logo-safespring"),
+      consortiumLogo("/assets/consortium/skygrid.png", "Skygrid", "logo-image-wrap", "partner-logo logo-skygrid"),
+      consortiumLogo(
+        "/assets/consortium/intended-future.png",
+        "Intended Future",
+        "logo-image-wrap",
+        "partner-logo logo-intended-future",
+      ),
+      consortiumLogo(
+        "/assets/consortium/viable-solutions.png",
+        "Viable Solutions",
+        "logo-image-wrap",
+        "partner-logo logo-viable-solutions",
+      ),
+      consortiumLogo("/assets/consortium/chord.png", "Chord", "logo-image-wrap", "partner-logo logo-chord"),
+    ],
   },
   {
     title: "Academia & Standardization",
     description: "Guarantees scientific rigor & EU alignment",
-    logos: ["Chalmers Industriteknik", "Chalmers", "Industry Commons"],
+    className: "consortium-group-academia",
+    gridClassName: "logo-grid-academia",
+    logos: [
+      consortiumLogo(
+        "/assets/consortium/chalmers-industriteknik.png",
+        "Chalmers Industriteknik",
+        "logo-image-wrap",
+        "partner-logo logo-chalmers-industriteknik",
+      ),
+      consortiumLogo("/assets/consortium/chalmers.png", "Chalmers", "logo-image-wrap", "partner-logo logo-chalmers"),
+      consortiumLogo(
+        "/assets/consortium/industry-commons.png",
+        "Industry Commons",
+        "logo-image-wrap",
+        "partner-logo logo-industry-commons",
+      ),
+    ],
   },
   {
     title: "Public Sector & Defence",
     description: "Secures national anchoring and implementation",
     id: "team",
     large: true,
+    className: "consortium-group-public",
+    gridClassName: "logo-grid-public",
     logos: [
-      "Försvarsmakten",
-      "MSB",
-      "SKR",
-      "Vinnova",
-      "Socialdepartementet",
-      "Försvarshögskolan",
-      "Avancerad Digitalisering",
+      consortiumLogo(
+        "/assets/consortium/forsvarsmakten.png",
+        "Försvarsmakten",
+        "logo-image-wrap",
+        "partner-logo logo-forsvarsmakten",
+      ),
+      consortiumLogo(
+        "/assets/consortium/myndigheten-for-civilt-forsvar.png",
+        "Myndigheten för civilt försvar",
+        "logo-image-wrap",
+        "partner-logo logo-myndigheten-for-civilt-forsvar",
+      ),
+      consortiumLogo("/assets/consortium/skr.png", "SKR", "logo-image-wrap", "partner-logo logo-skr"),
+      consortiumLogo(
+        "/assets/consortium/socialstyrelsen.png",
+        "Socialstyrelsen",
+        "logo-image-wrap",
+        "partner-logo logo-socialstyrelsen",
+      ),
+      consortiumLogo(
+        "/assets/consortium/socialdepartementet.png",
+        "Socialdepartementet",
+        "logo-image-wrap",
+        "partner-logo logo-socialdepartementet",
+      ),
+      consortiumLogo(
+        "/assets/consortium/forsvarshogskolan.png",
+        "Försvarshögskolan",
+        "logo-image-wrap",
+        "partner-logo logo-forsvarshogskolan",
+      ),
     ],
   },
 ];
@@ -255,11 +331,13 @@ function DeleteIcon() {
 function FileCard({
   record,
   isAdmin,
+  isRemoving,
   onPreview,
   onRemove,
 }: {
   record: StoredRecord;
   isAdmin: boolean;
+  isRemoving: boolean;
   onPreview: (record: StoredRecord) => void;
   onRemove: (record: StoredRecord) => Promise<void>;
 }) {
@@ -317,10 +395,27 @@ function FileCard({
       </div>
 
       <div className="doc-card-actions">
-        <button type="button" title="Preview" aria-label="Preview" onClick={() => onPreview(record)}>
+        <button
+          type="button"
+          title="Preview"
+          aria-label="Preview"
+          disabled={isRemoving}
+          onClick={() => onPreview(record)}
+        >
           <PreviewIcon />
         </button>
-        <a href={record.url} download={record.name} title="Download" aria-label="Download">
+        <a
+          href={record.url}
+          download={record.name}
+          title="Download"
+          aria-label="Download"
+          aria-disabled={isRemoving}
+          onClick={(event) => {
+            if (isRemoving) {
+              event.preventDefault();
+            }
+          }}
+        >
           <DownloadIcon />
         </a>
         <button
@@ -329,6 +424,7 @@ function FileCard({
           title="Remove"
           aria-label="Remove"
           hidden={!isAdmin}
+          disabled={isRemoving}
           onClick={() => void onRemove(record)}
         >
           <DeleteIcon />
@@ -345,6 +441,14 @@ function EmptyState({ message }: { message: string }) {
         <p className="doc-card-kicker">No items yet</p>
         <h3>{message}</h3>
       </div>
+    </article>
+  );
+}
+
+function PlaceholderCard({ compact = false }: { compact?: boolean }) {
+  return (
+    <article className={`doc-card doc-card-placeholder${compact ? " doc-card-placeholder-compact" : ""}`}>
+      <div className="doc-card-placeholder-surface" />
     </article>
   );
 }
@@ -373,6 +477,7 @@ export function MedChainApp() {
   const [adminFeedback, setAdminFeedback] = useState<{ message: string; tone: string } | null>(
     null,
   );
+  const [removingIds, setRemovingIds] = useState<string[]>([]);
   const [previewRecord, setPreviewRecord] = useState<StoredRecord | null>(null);
   const [previewMinimized, setPreviewMinimized] = useState(false);
   const [previewText, setPreviewText] = useState("Loading preview…");
@@ -433,7 +538,7 @@ export function MedChainApp() {
       setError: (message: string | null) => void,
     ) {
       try {
-        const response = await fetch(`/api/${collection}`);
+        const response = await fetch(`/api/${collection}`, { cache: "no-store" });
         if (!response.ok) {
           throw new Error();
         }
@@ -476,7 +581,7 @@ export function MedChainApp() {
   }, []);
 
   async function reloadCollection(collection: CollectionName) {
-    const response = await fetch(`/api/${collection}`);
+    const response = await fetch(`/api/${collection}`, { cache: "no-store" });
     if (!response.ok) {
       throw new Error("Unable to load collection");
     }
@@ -540,42 +645,117 @@ export function MedChainApp() {
           tone: "error",
         });
       } else {
-        setAdminFeedback({ message: "Upload failed. Please try again.", tone: "error" });
+        let errorMessage = "Upload failed. Please try again.";
+
+        try {
+          const payload = (await response.json()) as { error?: string };
+          if (payload.error) {
+            errorMessage = payload.error;
+          }
+        } catch {
+          // Keep generic fallback.
+        }
+
+        setAdminFeedback({ message: errorMessage, tone: "error" });
       }
       event.target.value = "";
       return;
     }
 
     const createdRecords = (await response.json()) as StoredRecord[];
-    await reloadCollection(collection);
+
+    if (collection === "documents") {
+      setDocuments((current) => [...createdRecords, ...current]);
+    } else {
+      setUseCases((current) => [...createdRecords, ...current]);
+    }
+
+    try {
+      await reloadCollection(collection);
+    } catch {
+      // Keep the optimistic UI state if the immediate refresh lags behind Blob consistency.
+    }
+
     setAdminFeedback({ message: "Upload complete.", tone: "success" });
     event.target.value = "";
-
-    if (createdRecords[0]) {
-      openPreview(createdRecords[0]);
-    }
   }
 
   async function handleRemove(record: StoredRecord) {
-    const response = await fetch(`/api/${record.collection}/${record.id}`, {
-      method: "DELETE",
-      credentials: "same-origin",
-    });
+    if (removingIds.includes(record.id)) {
+      return;
+    }
 
-    if (!response.ok) {
+    setRemovingIds((current) => [...current, record.id]);
+    setAdminFeedback({ message: "Removing item…", tone: "success" });
+
+    let response: Response;
+
+    try {
+      response = await fetch(`/api/${record.collection}/${record.id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+    } catch {
+      setRemovingIds((current) => current.filter((id) => id !== record.id));
       setAdminFeedback({
-        message: "Remove failed. Please confirm admin login and try again.",
+        message: "Remove failed because the server could not be reached.",
         tone: "error",
       });
       return;
     }
 
-    await reloadCollection(record.collection);
-    setAdminFeedback({ message: "Item removed.", tone: "success" });
+    if (!response.ok) {
+      if (response.status === 401) {
+        setRemovingIds((current) => current.filter((id) => id !== record.id));
+        setIsAdmin(false);
+        setAdminStatus("Visitor mode: preview and download only");
+        setAdminFeedback({
+          message: "Admin login expired. Please log in again before removing files.",
+          tone: "error",
+        });
+        return;
+      }
+
+      let errorMessage = "Remove failed. Please try again.";
+
+      try {
+        const payload = (await response.json()) as { error?: string };
+        if (payload.error) {
+          errorMessage = payload.error;
+        }
+      } catch {
+        // Keep the generic fallback.
+      }
+
+      setRemovingIds((current) => current.filter((id) => id !== record.id));
+      setAdminFeedback({
+        message: errorMessage,
+        tone: "error",
+      });
+      return;
+    }
 
     if (previewRecord?.id === record.id) {
       setPreviewRecord(null);
       setPreviewMinimized(false);
+    }
+
+    if (record.collection === "documents") {
+      setDocuments((current) => current.filter((item) => item.id !== record.id));
+    } else {
+      setUseCases((current) => current.filter((item) => item.id !== record.id));
+    }
+
+    setRemovingIds((current) => current.filter((id) => id !== record.id));
+    setAdminFeedback({ message: "Item removed.", tone: "success" });
+
+    try {
+      await reloadCollection(record.collection);
+    } catch {
+      setAdminFeedback({
+        message: "Item was removed, but the list could not be refreshed automatically.",
+        tone: "error",
+      });
     }
   }
 
@@ -619,6 +799,8 @@ export function MedChainApp() {
     error: string | null,
     emptyMessage: string,
     className: string,
+    placeholderCount = 0,
+    compactPlaceholders = false,
   ) {
     if (error) {
       return (
@@ -631,7 +813,14 @@ export function MedChainApp() {
     if (!records.length) {
       return (
         <div className={className}>
-          <EmptyState message={emptyMessage} />
+          {placeholderCount > 0
+            ? Array.from({ length: placeholderCount }).map((_, index) => (
+                <PlaceholderCard
+                  key={`placeholder-${className}-${index}`}
+                  compact={compactPlaceholders}
+                />
+              ))
+            : <EmptyState message={emptyMessage} />}
         </div>
       );
     }
@@ -643,6 +832,7 @@ export function MedChainApp() {
             key={record.id}
             record={record}
             isAdmin={isAdmin}
+            isRemoving={removingIds.includes(record.id)}
             onPreview={openPreview}
             onRemove={handleRemove}
           />
@@ -670,12 +860,14 @@ export function MedChainApp() {
 
       <main id="top">
         <section className="hero section-dark">
-          <div className="hero-copy">
-            <h1>
-              <span>Consortium-led initiative</span>
-              <span>connecting healthcare, industry,</span>
-              <span>and national resilience.</span>
-            </h1>
+          <div className="container">
+            <div className="hero-copy">
+              <h1>
+                <span>Consortium-led initiative</span>
+                <span>connecting healthcare, industry,</span>
+                <span>and national resilience.</span>
+              </h1>
+            </div>
           </div>
         </section>
 
@@ -750,6 +942,7 @@ export function MedChainApp() {
                 useCasesError,
                 "Upload the first use case asset when admin mode is enabled.",
                 "card-grid use-case-grid",
+                8,
               )}
             </div>
           </div>
@@ -762,14 +955,16 @@ export function MedChainApp() {
             {CONSORTIUM_GROUPS.map((group) => (
               <article
                 key={group.title}
-                className={`consortium-group${group.compact ? " consortium-group-compact" : ""}`}
+                className={`consortium-group${group.compact ? " consortium-group-compact" : ""}${group.className ? ` ${group.className}` : ""}`}
                 id={group.id}
               >
                 <header>
                   <h3>{group.title}</h3>
                   <p>{group.description}</p>
                 </header>
-                <div className={`logo-grid${group.large ? " large" : ""}`}>
+                <div
+                  className={`logo-grid${group.large ? " large" : ""}${group.gridClassName ? ` ${group.gridClassName}` : ""}`}
+                >
                   {group.logos.map((logo) =>
                     typeof logo === "string" ? (
                       <span key={logo}>{logo}</span>
@@ -810,58 +1005,56 @@ export function MedChainApp() {
                 documentsError,
                 "Upload the first shared document when admin mode is enabled.",
                 "doc-grid",
+                4,
+                true,
               )}
             </div>
           </div>
         </section>
 
-        <div className="gradient-band" />
-
-        <section className="section-dark contact" id="contact">
-          <div className="container narrow">
-            <h2>Contact</h2>
-            <p>Join the consortium or request early access to the platform roadmap.</p>
-            <form className="contact-form" onSubmit={(event) => event.preventDefault()}>
-              <label className="sr-only" htmlFor="email">
-                Email address
-              </label>
-              <input id="email" type="email" placeholder="Enter your email" />
-              <button type="submit">Get Access</button>
-            </form>
-          </div>
-        </section>
       </main>
 
       <footer className="site-footer section-dark">
-        <div className="container footer-grid">
-          <div>
+        <div className="container footer-shell">
+          <div className="footer-top">
             <a className="brand footer-brand" href="#top" aria-label="MedChain home">
               <img src="/assets/medchainlogo_white.png" alt="MedChain" />
             </a>
-            <p>
-              MedChain links healthcare, logistics, technology and national actors into a common
-              resilience platform.
-            </p>
           </div>
 
-          <div className="footer-links-group">
-            <div>
+          <div className="footer-links-row">
+            <div className="footer-link-block">
               <h3>Company</h3>
-              <a href="#about">About</a>
-              <a href="#team">Team</a>
-              <a href="#contact">Early Access</a>
+              <div className="footer-inline-links">
+                <a href="#about">About</a>
+                <a href="#team">Team</a>
+                <a href="#contact">Early Access</a>
+              </div>
             </div>
 
-            <div>
+            <div className="footer-link-block">
               <h3>Platform</h3>
-              <a href="#how-it-works">How it works</a>
-              <a href="#platform">Capabilities</a>
-              <a href="#use-cases">Use cases</a>
+              <div className="footer-inline-links">
+                <a href="#how-it-works">How it works</a>
+                <a href="#platform">Capabilities</a>
+                <a href="#use-cases">Use cases</a>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="container footer-admin-panel">
-          <p className="footer-admin-label">Admin controls for shared documents and use cases</p>
+
+          <div className="footer-contact-block" id="contact">
+            <h3>Contact</h3>
+            <p>Join the consortium or request early access to the platform roadmap.</p>
+            <form className="contact-form footer-contact-form" onSubmit={(event) => event.preventDefault()}>
+              <label className="sr-only" htmlFor="footer-email">
+                Email address
+              </label>
+              <input id="footer-email" type="email" placeholder="Enter your email" />
+              <button type="submit">Get Access</button>
+            </form>
+          </div>
+
+          <div className="footer-admin-panel">
           <div className="admin-controls-row footer-admin-controls">
             {!isAdmin ? (
               <form className="admin-login-form" onSubmit={handleAdminLogin}>
@@ -899,6 +1092,7 @@ export function MedChainApp() {
               {adminFeedback.message}
             </p>
           ) : null}
+          </div>
         </div>
       </footer>
 
