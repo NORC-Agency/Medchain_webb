@@ -45,6 +45,49 @@ type ConsortiumGroup = {
   logos: ConsortiumLogo[];
 };
 
+const PRIVACY_CONSENT_STORAGE_KEY = "medchain_privacy_consent_v1";
+const PRIVACY_CONSENT_ACCEPTED_VALUE = "accepted";
+const PRIVACY_CONSENT_ESSENTIAL_VALUE = "essential";
+const GOOGLE_ANALYTICS_ID = "G-GB6FRZQBMZ";
+
+type GtagWindow = Window &
+  typeof globalThis & {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  };
+
+function loadGoogleAnalytics() {
+  if (document.querySelector(`[data-medchain-google-tag="${GOOGLE_ANALYTICS_ID}"]`)) {
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`;
+  script.dataset.medchainGoogleTag = GOOGLE_ANALYTICS_ID;
+  document.head.appendChild(script);
+
+  const gtagWindow = window as GtagWindow;
+  gtagWindow.dataLayer = gtagWindow.dataLayer || [];
+  gtagWindow.gtag = function gtag(...args: unknown[]) {
+    gtagWindow.dataLayer?.push(args);
+  };
+  gtagWindow.gtag("js", new Date());
+  gtagWindow.gtag("config", GOOGLE_ANALYTICS_ID);
+}
+
+function disableGoogleAnalytics() {
+  document
+    .querySelectorAll(`[data-medchain-google-tag="${GOOGLE_ANALYTICS_ID}"], script[src*="${GOOGLE_ANALYTICS_ID}"]`)
+    .forEach((script) => script.remove());
+
+  const gtagWindow = window as GtagWindow;
+  gtagWindow.gtag?.("consent", "update", {
+    ad_storage: "denied",
+    analytics_storage: "denied",
+  });
+}
+
 function consortiumLogo(
   src: string,
   alt: string,
@@ -481,17 +524,41 @@ export function MedChainApp() {
   const [previewRecord, setPreviewRecord] = useState<StoredRecord | null>(null);
   const [previewMinimized, setPreviewMinimized] = useState(false);
   const [previewText, setPreviewText] = useState("Loading preview…");
+  const [privacyConsentChecked, setPrivacyConsentChecked] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [analyticsAccepted, setAnalyticsAccepted] = useState(false);
   const documentsInputRef = useRef<HTMLInputElement>(null);
   const useCasesInputRef = useRef<HTMLInputElement>(null);
 
   const activeHotspot = HOTSPOTS.find((hotspot) => hotspot.id === activeHotspotId) ?? HOTSPOTS[0];
 
   useEffect(() => {
-    document.body.classList.toggle("lightbox-open", Boolean(previewRecord && !previewMinimized));
+    document.body.classList.toggle(
+      "lightbox-open",
+      Boolean(previewRecord && !previewMinimized) || (privacyConsentChecked && !privacyAccepted),
+    );
     return () => {
       document.body.classList.remove("lightbox-open");
     };
-  }, [previewMinimized, previewRecord]);
+  }, [previewMinimized, previewRecord, privacyAccepted, privacyConsentChecked]);
+
+  useEffect(() => {
+    const storedConsent = window.localStorage.getItem(PRIVACY_CONSENT_STORAGE_KEY);
+    setPrivacyAccepted(
+      storedConsent === PRIVACY_CONSENT_ACCEPTED_VALUE ||
+        storedConsent === PRIVACY_CONSENT_ESSENTIAL_VALUE,
+    );
+    setAnalyticsAccepted(storedConsent === PRIVACY_CONSENT_ACCEPTED_VALUE);
+    setPrivacyConsentChecked(true);
+  }, []);
+
+  useEffect(() => {
+    if (analyticsAccepted) {
+      loadGoogleAnalytics();
+    } else {
+      disableGoogleAnalytics();
+    }
+  }, [analyticsAccepted]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -616,6 +683,25 @@ export function MedChainApp() {
   function openPreview(record: StoredRecord) {
     setPreviewRecord(record);
     setPreviewMinimized(false);
+  }
+
+  function acceptAllPrivacyNotice() {
+    window.localStorage.setItem(PRIVACY_CONSENT_STORAGE_KEY, PRIVACY_CONSENT_ACCEPTED_VALUE);
+    setPrivacyAccepted(true);
+    setAnalyticsAccepted(true);
+  }
+
+  function acceptEssentialPrivacyNotice() {
+    window.localStorage.setItem(PRIVACY_CONSENT_STORAGE_KEY, PRIVACY_CONSENT_ESSENTIAL_VALUE);
+    setPrivacyAccepted(true);
+    setAnalyticsAccepted(false);
+  }
+
+  function reopenPrivacyNotice() {
+    window.localStorage.removeItem(PRIVACY_CONSENT_STORAGE_KEY);
+    setPrivacyAccepted(false);
+    setAnalyticsAccepted(false);
+    setPrivacyConsentChecked(true);
   }
 
   async function handleUpload(
@@ -849,11 +935,11 @@ export function MedChainApp() {
         </a>
 
         <nav className="site-nav" aria-label="Primary navigation">
-          <a href="#about">About</a>
           <a href="#how-it-works">How it Works</a>
-          <a href="#platform">Platform</a>
           <a href="#use-cases">Use Cases</a>
           <a href="#platform">Team</a>
+          <a href="#documents">Documents</a>
+          <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </nav>
       </header>
@@ -880,14 +966,14 @@ export function MedChainApp() {
           <div className="gradient-band" />
         </section>
 
-        <section className="overview section-dark" id="about">
+        <section className="overview section-dark" id="how-it-works">
           <div className="container">
-            <h2>Engineering Medical System Resilience</h2>
+            <h2 id="engineering-medical-system-resilience">Engineering Medical System Resilience</h2>
             <p className="section-intro">
               A structural overview of the MedChain Use Case generation methodology.
             </p>
 
-            <div className="system-map-wrap" id="how-it-works">
+            <div className="system-map-wrap">
               <figure className="system-map">
                 <img
                   src="/assets/oversikt.jpeg"
@@ -982,7 +1068,7 @@ export function MedChainApp() {
 
         <div className="gradient-band" />
 
-        <section className="section-light documents">
+        <section className="section-light documents" id="documents">
           <div className="container">
             <h2>Shared documents</h2>
             <div className="documents-shell">
@@ -1022,29 +1108,21 @@ export function MedChainApp() {
             </a>
           </div>
 
-          <div className="footer-links-row">
-            <div className="footer-link-block">
-              <h3>Company</h3>
-              <div className="footer-inline-links">
-                <a href="#about">About</a>
-                <a href="#team">Team</a>
-                <a href="#contact">Early Access</a>
-              </div>
-            </div>
-
-            <div className="footer-link-block">
-              <h3>Platform</h3>
-              <div className="footer-inline-links">
-                <a href="#how-it-works">How it works</a>
-                <a href="#platform">Capabilities</a>
-                <a href="#use-cases">Use cases</a>
-              </div>
-            </div>
-          </div>
+          <section className="footer-about-block" id="about" aria-labelledby="about-medchain-title">
+            <h3 id="about-medchain-title">About Medchain</h3>
+            <p>
+              MedChain is a Vinnova-funded project exploring how Sweden can strengthen medical system
+              resilience through shared data, coordinated supply chains, and practical collaboration
+              between healthcare, industry, academia, and public-sector partners.
+            </p>
+          </section>
 
           <div className="footer-contact-block" id="contact">
             <h3>Contact</h3>
-            <p>Join the consortium or request early access to the platform roadmap.</p>
+            <p>
+              Get in contact if you are a part of the project and need to get access for uploading
+              documents or User cases.
+            </p>
             <form className="contact-form footer-contact-form" onSubmit={(event) => event.preventDefault()}>
               <label className="sr-only" htmlFor="footer-email">
                 Email address
@@ -1093,6 +1171,17 @@ export function MedChainApp() {
             </p>
           ) : null}
           </div>
+
+          <a
+            className="privacy-settings-link"
+            href="#privacy-and-cookies"
+            onClick={(event) => {
+              event.preventDefault();
+              reopenPrivacyNotice();
+            }}
+          >
+            Privacy and cookies
+          </a>
         </div>
       </footer>
 
@@ -1164,6 +1253,57 @@ export function MedChainApp() {
         >
           Reopen preview
         </button>
+      ) : null}
+
+      {privacyConsentChecked && !privacyAccepted ? (
+        <div className="privacy-consent">
+          <div className="privacy-consent-backdrop" />
+          <section
+            className="privacy-consent-dialog"
+            aria-modal="true"
+            role="dialog"
+            aria-labelledby="privacy-consent-title"
+          >
+            <p className="doc-card-kicker">GDPR and cookie notice</p>
+            <h2 id="privacy-consent-title">Your privacy on MedChain</h2>
+            <p>
+              MedChain uses only necessary technology to make this website work, including local
+              browser storage for this notice and an essential admin session cookie if an authorised
+              project member logs in to upload or remove documents. With your consent, the website
+              also uses Google Analytics through Google tag to understand aggregate website usage.
+              Google may set analytics cookies or similar identifiers for this purpose.
+            </p>
+            <p>
+              Uploaded documents and use cases are made available on this website for public viewing
+              and download. Only project members with administration access can upload or delete
+              files. If you upload files or choose to contact the project, the information you
+              provide may include personal data. That data is processed for project administration,
+              document sharing, access management, and collaboration within the Vinnova-funded
+              MedChain project.
+            </p>
+            <p>
+              You can accept all cookies or continue with necessary cookies only. You may contact
+              the project administrator to request access, correction, deletion, restriction, or
+              other rights available under the GDPR.
+            </p>
+            <div className="privacy-consent-actions">
+              <button
+                type="button"
+                className="privacy-consent-button"
+                onClick={acceptAllPrivacyNotice}
+              >
+                Accept all
+              </button>
+              <button
+                type="button"
+                className="privacy-consent-button privacy-consent-secondary"
+                onClick={acceptEssentialPrivacyNotice}
+              >
+                Necessary cookies only
+              </button>
+            </div>
+          </section>
+        </div>
       ) : null}
     </>
   );

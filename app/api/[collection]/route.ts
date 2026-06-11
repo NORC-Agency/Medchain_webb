@@ -8,6 +8,10 @@ type RouteContext = {
   params: Promise<{ collection: string }>;
 };
 
+function isNoSpaceError(error: unknown) {
+  return error instanceof Error && "code" in error && error.code === "ENOSPC";
+}
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -52,6 +56,16 @@ export async function POST(request: Request, context: RouteContext) {
     const records = await uploadFiles(collection, files);
     return NextResponse.json(records, { status: 201 });
   } catch (error) {
+    if (isNoSpaceError(error)) {
+      return NextResponse.json(
+        {
+          error:
+            "Upload failed because the server disk is full. Free up local storage and try again.",
+        },
+        { status: 507 },
+      );
+    }
+
     const message =
       error instanceof Error ? error.message : "Upload failed because storage is unavailable.";
     return NextResponse.json({ error: message }, { status: 503 });
