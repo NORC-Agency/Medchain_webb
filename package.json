@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "dev:local": "next dev --hostname 127.0.0.1 --port 4173",
+    "dev:local": "ulimit -n 4096 && WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 next dev --hostname 127.0.0.1 --port 4173",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
