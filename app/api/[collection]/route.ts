@@ -2,7 +2,12 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { isAdminAuthenticated } from "../../../lib/auth";
-import { isCollectionName, listRecords, uploadFiles } from "../../../lib/storage";
+import {
+  isCollectionName,
+  isUploadValidationError,
+  listRecords,
+  uploadFiles,
+} from "../../../lib/storage";
 
 type RouteContext = {
   params: Promise<{ collection: string }>;
@@ -64,6 +69,10 @@ export async function POST(request: Request, context: RouteContext) {
         },
         { status: 507 },
       );
+    }
+
+    if (isUploadValidationError(error)) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     const message =
