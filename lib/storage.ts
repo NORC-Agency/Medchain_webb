@@ -62,6 +62,36 @@ const MIME_TYPES: Record<string, string> = {
   ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 };
 
+const MAX_UPLOAD_SIZE_BYTES = 15 * 1024 * 1024;
+const ALLOWED_UPLOAD_TYPES: Record<string, string[]> = {
+  ".doc": ["application/msword", "application/octet-stream"],
+  ".docx": [
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/octet-stream",
+  ],
+  ".jpeg": ["image/jpeg", "application/octet-stream"],
+  ".jpg": ["image/jpeg", "application/octet-stream"],
+  ".pdf": ["application/pdf", "application/octet-stream"],
+  ".png": ["image/png", "application/octet-stream"],
+  ".webp": ["image/webp", "application/octet-stream"],
+  ".xls": ["application/vnd.ms-excel", "application/octet-stream"],
+  ".xlsx": [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/octet-stream",
+  ],
+};
+
+export class UploadValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UploadValidationError";
+  }
+}
+
+export function isUploadValidationError(error: unknown) {
+  return error instanceof UploadValidationError;
+}
+
 function safeFilename(name: string) {
   const ext = path.extname(name).replace(/[^A-Za-z0-9]/g, "").slice(0, 10);
   const stem =
@@ -99,6 +129,29 @@ function manifestPathname(collection: CollectionName) {
 
 function inferMimeType(filename: string) {
   return MIME_TYPES[path.extname(filename).toLowerCase()] ?? "application/octet-stream";
+}
+
+function validateUploadFile(file: File) {
+  const extension = path.extname(file.name).toLowerCase();
+  const allowedMimeTypes = ALLOWED_UPLOAD_TYPES[extension];
+
+  if (!allowedMimeTypes) {
+    throw new UploadValidationError("Upload failed because this file type is not allowed.");
+  }
+
+  if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+    throw new UploadValidationError("Upload failed because files must be 15 MB or smaller.");
+  }
+
+  if (file.type && !allowedMimeTypes.includes(file.type)) {
+    throw new UploadValidationError(
+      "Upload failed because the file format does not match the filename.",
+    );
+  }
+}
+
+function validateUploadFiles(files: File[]) {
+  files.forEach(validateUploadFile);
 }
 
 function blobRecordFromStoredName(
@@ -304,6 +357,7 @@ async function uploadBlobFiles(collection: CollectionName, files: File[]) {
 
 export async function uploadFiles(collection: CollectionName, files: File[]) {
   ensureWritableStorage();
+  validateUploadFiles(files);
 
   if (USE_BLOB_STORAGE) {
     return uploadBlobFiles(collection, files);

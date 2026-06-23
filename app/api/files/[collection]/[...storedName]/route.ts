@@ -30,6 +30,7 @@ export async function GET(_: Request, context: RouteContext) {
         "Content-Length": String(buffer.byteLength),
         "Content-Disposition": `inline; filename="${encodeURIComponent(record.name)}"`,
         "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
       },
     });
   }

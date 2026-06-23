@@ -2,20 +2,57 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE_NAME = "medchain_admin_session";
 
-const ADMIN_PASSWORD = process.env.MEDCHAIN_ADMIN_PASSWORD ?? "medchain-admin";
-const SESSION_SECRET = process.env.MEDCHAIN_ADMIN_SESSION_SECRET ?? ADMIN_PASSWORD;
+const SESSION_TTL_SECONDS = 60 * 60 * 24;
 const SESSION_PAYLOAD = "medchain-admin";
 
+function getAdminPassword() {
+  return process.env.MEDCHAIN_ADMIN_PASSWORD?.trim() || null;
+}
+
+function getSessionSecret() {
+  return process.env.MEDCHAIN_ADMIN_SESSION_SECRET?.trim() || null;
+}
+
 function sign(value: string) {
-  return createHmac("sha256", SESSION_SECRET).update(value).digest("hex");
+  const secret = getSessionSecret();
+  if (!secret) {
+    return null;
+  }
+
+  return createHmac("sha256", secret).update(value).digest("hex");
+}
+
+function safelyCompare(left: string, right: string) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+
+  if (leftBuffer.length !== rightBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+export function isAdminAuthConfigured() {
+  return Boolean(getAdminPassword() && getSessionSecret());
 }
 
 export function verifyAdminPassword(password: string) {
-  return password === ADMIN_PASSWORD;
+  const configuredPassword = getAdminPassword();
+  if (!configuredPassword) {
+    return false;
+  }
+
+  return safelyCompare(password, configuredPassword);
 }
 
 export function createSessionToken() {
-  return `${SESSION_PAYLOAD}.${sign(SESSION_PAYLOAD)}`;
+  const signature = sign(SESSION_PAYLOAD);
+  if (!signature) {
+    throw new Error("Admin session secret is not configured");
+  }
+
+  return `${SESSION_PAYLOAD}.${signature}`;
 }
 
 export function isValidSessionToken(token?: string) {
@@ -29,6 +66,10 @@ export function isValidSessionToken(token?: string) {
   }
 
   const expected = sign(payload);
+  if (!expected) {
+    return false;
+  }
+
   const actualBuffer = Buffer.from(signature);
   const expectedBuffer = Buffer.from(expected);
 
@@ -54,6 +95,7 @@ export function setAdminSessionCookie(cookieStore: {
       sameSite: "lax";
       path: string;
       maxAge: number;
+      secure?: boolean;
     },
   ): void;
 }) {
@@ -61,7 +103,8 @@ export function setAdminSessionCookie(cookieStore: {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: SESSION_TTL_SECONDS,
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
@@ -74,6 +117,7 @@ export function clearAdminSessionCookie(cookieStore: {
       sameSite: "lax";
       path: string;
       maxAge: number;
+      secure?: boolean;
     },
   ): void;
 }) {
@@ -82,5 +126,6 @@ export function clearAdminSessionCookie(cookieStore: {
     sameSite: "lax",
     path: "/",
     maxAge: 0,
+    secure: process.env.NODE_ENV === "production",
   });
 }

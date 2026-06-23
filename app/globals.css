@@ -56,6 +56,26 @@ button {
   cursor: pointer;
 }
 
+.not-found-page {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  background: var(--bg-dark);
+}
+
+.not-found-page h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.not-found-page a {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -134,7 +154,7 @@ button {
   flex-direction: column;
   gap: 0.08em;
   margin: 0;
-  max-width: 690px;
+  max-width: 100%;
   font-size: clamp(1.92rem, 4.55vw, 3.78rem);
   line-height: 0.94;
   font-weight: 600;
@@ -151,6 +171,18 @@ button {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.hero-copy h1 span {
+  white-space: nowrap;
+}
+
+.hero-description {
+  margin: 80px 0 0;
+  max-width: 850px;
+  color: var(--text-light);
+  font-size: clamp(1rem, 1.38vw, 1.2rem);
+  line-height: 1.55;
 }
 
 .hero-image-section {
@@ -281,9 +313,111 @@ button {
   max-width: 560px;
 }
 
+.research-capability {
+  padding: 3.6rem 0 3.8rem;
+  background: var(--bg-light);
+  color: var(--text-strong);
+}
+
+.research-capability-kicker {
+  margin: 0 0 0.5rem;
+  color: var(--accent-orange);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.research-capability h2 {
+  margin: 0;
+  max-width: 720px;
+  font-size: clamp(1.55rem, 3vw, 2.7rem);
+  line-height: 1;
+}
+
+.research-capability-copy {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.4rem, 4vw, 3rem);
+  margin-top: 1.25rem;
+}
+
+.research-capability-copy p {
+  margin: 0;
+  color: rgba(27, 26, 26, 0.78);
+  font-size: clamp(0.92rem, 1.2vw, 1.03rem);
+  line-height: 1.55;
+}
+
 .use-cases,
 .documents {
   padding: 3rem 0 3.2rem;
+}
+
+.strategic-value {
+  padding: 3.6rem 0 4.2rem;
+  background: var(--bg-light);
+  color: var(--text-strong);
+}
+
+.strategic-value-kicker {
+  margin: 0 0 0.5rem;
+  color: var(--accent-orange);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.strategic-value h2 {
+  margin: 0;
+  max-width: 760px;
+  font-size: clamp(1.55rem, 3vw, 2.7rem);
+  line-height: 1;
+}
+
+.strategic-value-intro {
+  margin: 0.9rem 0 0;
+  max-width: 760px;
+  color: rgba(27, 26, 26, 0.76);
+  font-size: clamp(0.94rem, 1.25vw, 1.06rem);
+  line-height: 1.5;
+}
+
+.strategic-value-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.55rem;
+}
+
+.strategic-value-block {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 1rem 1rem 1.05rem;
+  border: 1px solid rgba(27, 26, 26, 0.16);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.strategic-value-label {
+  margin: 0 0 0.45rem;
+  color: var(--accent-orange);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.strategic-value-block h3 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1rem, 1.45vw, 1.28rem);
+  line-height: 1.08;
+}
+
+.strategic-value-block p:not(.strategic-value-label) {
+  margin: 0;
+  color: rgba(27, 26, 26, 0.78);
+  font-size: 0.84rem;
+  line-height: 1.5;
 }
 
 .documents-shell {
@@ -301,6 +435,56 @@ button {
   width: 1px;
   height: 1px;
   opacity: 0;
+  pointer-events: none;
+}
+
+.section-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.35rem 0 0.15rem;
+  color: var(--text-strong);
+}
+
+.section-cta h3 {
+  margin: 0 0 0.45rem;
+  font-size: clamp(1rem, 1.45vw, 1.28rem);
+  line-height: 1.1;
+}
+
+.section-cta p {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(27, 26, 26, 0.74);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.section-cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.45rem;
+  padding: 0.68rem 0.95rem;
+  border: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-orange) 100%);
+  color: #171515;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 12px 28px rgba(27, 26, 26, 0.12);
+}
+
+.section-cta-button:hover {
+  color: #171515;
+  filter: brightness(1.04) saturate(1.08);
+}
+
+.section-cta-button.is-disabled {
+  opacity: 0.45;
   pointer-events: none;
 }
 
@@ -490,7 +674,7 @@ button {
   display: grid;
   align-items: center;
   justify-items: center;
-  gap: 0.2rem 0.25rem;
+  gap: 0.04rem 0.16rem;
 }
 
 .logo-grid.large {
@@ -508,24 +692,24 @@ button {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 34px;
+  min-height: 28px;
 }
 
 .logo-image-wrap-astrazeneca {
-  min-height: 36px;
+  min-height: 30px;
 }
 
 .logo-image-wrap-onemed {
-  min-height: 34px;
+  min-height: 28px;
 }
 
 .logo-image-wrap-tamro {
-  min-height: 36px;
+  min-height: 30px;
   overflow: hidden;
 }
 
 .logo-image-wrap-softpro {
-  min-height: 34px;
+  min-height: 28px;
 }
 
 .partner-logo {
@@ -538,12 +722,12 @@ button {
 
 .logo-grid-industry {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  row-gap: 0.1rem;
+  row-gap: 0;
 }
 
 .logo-grid-technology {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  row-gap: 0.1rem;
+  row-gap: 0;
 }
 
 .logo-grid-academia {
@@ -552,7 +736,7 @@ button {
 
 .logo-grid-public {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  row-gap: 0.1rem;
+  row-gap: 0;
 }
 
 .logo-astrazeneca {
@@ -560,11 +744,11 @@ button {
 }
 
 .logo-onemed {
-  width: 464px;
+  width: 418px;
 }
 
 .logo-tamro {
-  width: 352px;
+  width: 317px;
 }
 
 .logo-softpro {
@@ -584,7 +768,7 @@ button {
 }
 
 .logo-intended-future {
-  width: 432px;
+  width: 475px;
 }
 
 .logo-viable-solutions {
@@ -720,20 +904,80 @@ button {
 
 .footer-about-block {
   padding-top: 0.45rem;
+  width: 100%;
 }
 
 .footer-about-block h3,
-.footer-contact-block h3 {
+.footer-contact-block h3,
+.footer-admin-panel h3 {
   margin: 0;
   font-size: 0.864rem;
 }
 
+.footer-about-block h3 {
+  max-width: 760px;
+  font-size: clamp(1.1rem, 2.04vw, 1.7rem);
+  line-height: 1.05;
+}
+
+.footer-about-kicker {
+  margin: 0;
+  color: var(--accent-orange);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.footer-about-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.4rem, 4vw, 3rem);
+  width: 100%;
+  margin-top: 0.85rem;
+}
+
+.footer-about-column,
+.footer-about-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.72rem;
+}
+
+.footer-about-subsection h4 {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
 .footer-about-block p,
-.footer-contact-block p {
+.footer-contact-block p,
+.member-zone-note {
   margin: 0;
   max-width: 420px;
   line-height: 1.45;
   font-size: 0.816rem;
+}
+
+.footer-about-block p {
+  max-width: none;
+}
+
+.footer-about-block strong {
+  color: var(--text-light);
+}
+
+.footer-about-closing {
+  margin-top: 0.2rem !important;
+  color: rgba(245, 239, 229, 0.86) !important;
+}
+
+.footer-contact-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: clamp(1.4rem, 4vw, 3rem);
+  width: 100%;
+  margin-top: 2.6rem;
 }
 
 .documents-intro,
@@ -745,9 +989,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  margin-top: 0.65rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 0;
 }
 
 .footer-admin-label,
@@ -995,9 +1237,46 @@ button {
     padding-top: 2.5rem;
   }
 
+  .hero-description {
+    margin-top: 2.5rem;
+    font-size: 0.98rem;
+  }
+
   .documents-toolbar,
   .preview-lightbox-header {
     flex-direction: column;
+  }
+
+  .section-cta {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .section-cta-button {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .footer-about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-contact-admin-grid {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .footer-admin-panel {
+    margin-top: 0;
+  }
+
+  .research-capability-copy {
+    grid-template-columns: 1fr;
+  }
+
+  .strategic-value-grid {
+    grid-template-columns: 1fr;
   }
 
   .card-grid,

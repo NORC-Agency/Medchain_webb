@@ -949,10 +949,19 @@ export function MedChainApp() {
           <div className="container">
             <div className="hero-copy">
               <h1>
-                <span>Consortium-led initiative</span>
-                <span>connecting healthcare, industry,</span>
-                <span>and national resilience.</span>
+                <span>Project MedChain: Building Sweden&apos;s</span>
+                <span>Capability for Secure, Circular,</span>
+                <span>and Resilient Value Chains.</span>
               </h1>
+              <p className="hero-description">
+                Backed by Vinnova (Sweden&apos;s Innovation Agency), Project MedChain is a
+                cross-sector research initiative establishing the Medical Product Passport (MPP) -
+                a sovereign digital infrastructure that guarantees visibility, trust, and
+                continuity for critical medical supplies. We transform regulatory obligations into
+                a strategic national asset, ensuring that the integrity of product data forms the
+                basis for industrial leadership, sustainable healthcare, and unwavering national
+                resilience.
+              </p>
             </div>
           </div>
         </section>
@@ -960,8 +969,8 @@ export function MedChainApp() {
         <section className="hero-image-section" aria-label="MedChain hero image">
           <img
             className="hero-image"
-            src="/assets/helix-img.jpeg"
-            alt="Surgeon with illuminated DNA helix illustration"
+            src="/assets/hero2-img.jpeg"
+            alt="Medical resilience scene connecting home, care, and logistics"
           />
           <div className="gradient-band" />
         </section>
@@ -1004,6 +1013,29 @@ export function MedChainApp() {
           </div>
         </section>
 
+        <section className="research-capability section-light" id="research-capability">
+          <div className="container">
+            <p className="research-capability-kicker">Research &amp; Capability</p>
+            <h2>From Research to National Capability</h2>
+            <div className="research-capability-copy">
+              <p>
+                Project MedChain is an innovation and research initiative funded by Vinnova within
+                the Advanced Digitalisation programme. We are currently operating in a critical
+                development phase, moving from conceptual architecture to applied validation. Our
+                immediate objective is to advance the Medical Product Passport (MPP) framework to
+                Technology Readiness Level (TRL) 3-4.
+              </p>
+              <p>
+                This means transitioning from theoretical models to functional prototypes validated
+                in controlled lab environments and early field pilots. We are not deploying a
+                finished commercial product; we are researching, stress-testing, and laying the
+                sovereign digital foundation for what will ultimately become a national standard for
+                secure value chains.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <div className="gradient-band" />
 
         <section className="section-light use-cases" id="use-cases">
@@ -1019,10 +1051,25 @@ export function MedChainApp() {
                   ref={useCasesInputRef}
                   id="use-case-input"
                   type="file"
+                  accept=".doc,.docx,.jpeg,.jpg,.pdf,.png,.webp,.xls,.xlsx"
                   multiple
                   onChange={(event) => void handleUpload("use-cases", event)}
                 />
               </div>
+              <article className="section-cta">
+                <div>
+                  <h3>Engage with Our Validation Pilots</h3>
+                  <p>
+                    Project MedChain is actively validating the Medical Product Passport framework
+                    across operational healthcare environments and Total Defence logistics contexts.
+                    Connect with our alliance to explore upcoming use cases, pilot criteria, and
+                    stakeholder integration paths.
+                  </p>
+                </div>
+                <a className="section-cta-button" href="#contact">
+                  Explore Use Cases &amp; Join the Alliance
+                </a>
+              </article>
               {renderCollection(
                 useCases,
                 useCasesError,
@@ -1030,6 +1077,59 @@ export function MedChainApp() {
                 "card-grid use-case-grid",
                 8,
               )}
+            </div>
+          </div>
+        </section>
+
+        <div className="gradient-band" />
+
+        <section className="strategic-value section-light" id="strategic-value">
+          <div className="container">
+            <p className="strategic-value-kicker">Strategic Value &amp; Capabilities</p>
+            <h2>A National Capability Built for Converging Realities</h2>
+            <p className="strategic-value-intro">
+              MedChain delivers measurable strategic impact across three critical domains,
+              positioning Sweden at the forefront of European digital infrastructure.
+            </p>
+
+            <div className="strategic-value-grid">
+              <article className="strategic-value-block">
+                <p className="strategic-value-label">For Industry</p>
+                <h3>Strategic Leadership in Digital Value Chains</h3>
+                <p>
+                  The EU Digital Product Passport (DPP) is fundamentally restructuring market
+                  access. MedChain enables Swedish industry to move beyond mere regulatory
+                  compliance, transforming product data integrity into a distinct competitive
+                  advantage. We establish the secure infrastructure required to pilot new
+                  data-driven business models, ensuring early European leadership in circular and
+                  interoperable supply chains.
+                </p>
+              </article>
+
+              <article className="strategic-value-block">
+                <p className="strategic-value-label">For Healthcare</p>
+                <h3>Sustainable &amp; Secure Lifecycle Management</h3>
+                <p>
+                  Healthcare systems operate under severe pressure to increase resource efficiency
+                  without compromising care. MedChain delivers real-time, verified visibility into a
+                  product&apos;s origin, performance, and sustainability metrics. This systemic
+                  transparency allows healthcare providers to optimize procurement, drastically
+                  reduce physical waste, and execute true circular flows - securing both
+                  environmental sustainability and patient safety.
+                </p>
+              </article>
+
+              <article className="strategic-value-block">
+                <p className="strategic-value-label">For National Resilience</p>
+                <h3>Security of Supply &amp; Total Defence</h3>
+                <p>
+                  In an era of disrupted global logistics, supply chain visibility is a matter of
+                  national security. MedChain builds a sovereign capability that guarantees control
+                  over critical medical supplies before and during a crisis. By securing
+                  civil-military logistics coordination and aligning with NATO interoperability
+                  requirements, we provide a foundational data layer for Sweden&apos;s Total Defence.
+                </p>
+              </article>
             </div>
           </div>
         </section>
@@ -1081,10 +1181,34 @@ export function MedChainApp() {
                   ref={documentsInputRef}
                   id="shared-doc-input"
                   type="file"
+                  accept=".doc,.docx,.jpeg,.jpg,.pdf,.png,.webp,.xls,.xlsx"
                   multiple
                   onChange={(event) => void handleUpload("documents", event)}
                 />
               </div>
+              <article className="section-cta">
+                <div>
+                  <h3>Review the Strategic Framework</h3>
+                  <p>
+                    Access the complete executive brief and project documentation to review the
+                    underlying technical architecture, governance models, and systemic resilience
+                    logic of the Medical Product Passport initiative.
+                  </p>
+                </div>
+                {documents[0] ? (
+                  <a
+                    className="section-cta-button"
+                    href={documents[0].url}
+                    download={documents[0].name}
+                  >
+                    Download Executive Presentation
+                  </a>
+                ) : (
+                  <span className="section-cta-button is-disabled">
+                    Download Executive Presentation
+                  </span>
+                )}
+              </article>
 
               {renderCollection(
                 documents,
@@ -1109,67 +1233,118 @@ export function MedChainApp() {
           </div>
 
           <section className="footer-about-block" id="about" aria-labelledby="about-medchain-title">
-            <h3 id="about-medchain-title">About Medchain</h3>
-            <p>
-              MedChain is a Vinnova-funded project exploring how Sweden can strengthen medical system
-              resilience through shared data, coordinated supply chains, and practical collaboration
-              between healthcare, industry, academia, and public-sector partners.
-            </p>
+            <p className="footer-about-kicker">About MedChain</p>
+            <h3 id="about-medchain-title">A Converging Opportunity at a Strategic Crossroads</h3>
+
+            <div className="footer-about-grid">
+              <div className="footer-about-column">
+                <p>
+                  The world is changing. Today, healthcare and life science supply chains are
+                  exposed to systemic risks - from geopolitical instability and cyber threats to new
+                  regulatory pressures like the EU&apos;s Digital Product Passport (DPP). It is no
+                  longer just a matter of compliance; product data has become critical national
+                  infrastructure.
+                </p>
+                <p>
+                  Project MedChain is Sweden&apos;s proactive response. Supported by Vinnova
+                  (Avancerad Digitalisering) and driven by a unique national capability alliance of
+                  industry leaders, technology providers, academia, and the defense sector, we are
+                  building a secure digital backbone.
+                </p>
+                <div className="footer-about-subsection">
+                  <h4>The Instrument: The Medical Product Passport (MPP)</h4>
+                  <p>
+                    At the core of MedChain is a transformative concept: every medical product
+                    carries a secure digital identity that follows it across its entire lifecycle.
+                    This provides verified data on origin, regulatory compliance, sustainability
+                    metrics, and location.
+                  </p>
+                </div>
+              </div>
+
+              <div className="footer-about-column">
+                <div className="footer-about-subsection">
+                  <h4>This establishes a true Dual-Use Capability:</h4>
+                  <p>
+                    <strong>In Peacetime:</strong> An engine for sustainability and competitiveness.
+                    It ensures EU regulatory compliance, enables circular flows (reuse and
+                    recycling), and creates new data-driven business models.
+                  </p>
+                  <p>
+                    <strong>During Crisis:</strong> A guarantor of resilience and trust. It provides
+                    real-time visibility of critical stocks, verifies product authenticity in
+                    disrupted chains, and coordinates rapid redistribution to strengthen Total
+                    Defence medical logistics.
+                  </p>
+                </div>
+                <p className="footer-about-closing">
+                  We are not just building a platform; we are establishing a new standard for how
+                  product data is governed, protected, and utilized to secure a safer, more
+                  competitive Sweden.
+                </p>
+              </div>
+            </div>
           </section>
 
-          <div className="footer-contact-block" id="contact">
-            <h3>Contact</h3>
-            <p>
-              Get in contact if you are a part of the project and need to get access for uploading
-              documents or User cases.
-            </p>
-            <form className="contact-form footer-contact-form" onSubmit={(event) => event.preventDefault()}>
-              <label className="sr-only" htmlFor="footer-email">
-                Email address
-              </label>
-              <input id="footer-email" type="email" placeholder="Enter your email" />
-              <button type="submit">Get Access</button>
-            </form>
-          </div>
-
-          <div className="footer-admin-panel">
-          <div className="admin-controls-row footer-admin-controls">
-            {!isAdmin ? (
-              <form className="admin-login-form" onSubmit={handleAdminLogin}>
-                <input
-                  id="admin-password"
-                  type="password"
-                  placeholder="Admin password"
-                  value={adminPassword}
-                  onChange={(event) => setAdminPassword(event.target.value)}
-                />
-                <button type="submit" className="admin-login-button">
-                  Admin login
-                </button>
+          <div className="footer-contact-admin-grid">
+            <div className="footer-contact-block" id="contact">
+              <h3>Contact</h3>
+              <p>
+                Get in contact if you are a part of the project and need to get access for uploading
+                documents or User cases.
+              </p>
+              <form className="contact-form footer-contact-form" onSubmit={(event) => event.preventDefault()}>
+                <label className="sr-only" htmlFor="footer-email">
+                  Email address
+                </label>
+                <input id="footer-email" type="email" placeholder="Enter your email" />
+                <button type="submit">Get Access</button>
               </form>
-            ) : null}
+            </div>
 
-            <button
-              type="button"
-              className="admin-logout-button"
-              hidden={!isAdmin}
-              onClick={() => void handleAdminLogout()}
-            >
-              Log out
-            </button>
-            <label className="upload-button" htmlFor="use-case-input" hidden={!isAdmin}>
-              Upload use cases
-            </label>
-            <label className="upload-button" htmlFor="shared-doc-input" hidden={!isAdmin}>
-              Upload files
-            </label>
-          </div>
-          <p className="admin-status footer-admin-status">{adminStatus}</p>
-          {adminFeedback ? (
-            <p className="admin-feedback" data-tone={adminFeedback.tone}>
-              {adminFeedback.message}
-            </p>
-          ) : null}
+            <div className="footer-admin-panel">
+              <h3>Member Zone</h3>
+              <p className="member-zone-note">
+                Access is reserved for project members who need to upload or remove project files.
+              </p>
+              <div className="admin-controls-row footer-admin-controls">
+                {!isAdmin ? (
+                  <form className="admin-login-form" onSubmit={handleAdminLogin}>
+                    <input
+                      id="admin-password"
+                      type="password"
+                      placeholder="Admin password"
+                      value={adminPassword}
+                      onChange={(event) => setAdminPassword(event.target.value)}
+                    />
+                    <button type="submit" className="admin-login-button">
+                      Admin login
+                    </button>
+                  </form>
+                ) : null}
+
+                <button
+                  type="button"
+                  className="admin-logout-button"
+                  hidden={!isAdmin}
+                  onClick={() => void handleAdminLogout()}
+                >
+                  Log out
+                </button>
+                <label className="upload-button" htmlFor="use-case-input" hidden={!isAdmin}>
+                  Upload use cases
+                </label>
+                <label className="upload-button" htmlFor="shared-doc-input" hidden={!isAdmin}>
+                  Upload files
+                </label>
+              </div>
+              <p className="admin-status footer-admin-status">{adminStatus}</p>
+              {adminFeedback ? (
+                <p className="admin-feedback" data-tone={adminFeedback.tone}>
+                  {adminFeedback.message}
+                </p>
+              ) : null}
+            </div>
           </div>
 
           <a
