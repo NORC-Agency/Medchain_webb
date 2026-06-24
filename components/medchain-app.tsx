@@ -262,47 +262,6 @@ const CONSORTIUM_GROUPS: ConsortiumGroup[] = [
       ),
     ],
   },
-  {
-    title: "Public Sector & Defence",
-    description: "Secures national anchoring and implementation",
-    id: "team",
-    large: true,
-    className: "consortium-group-public",
-    gridClassName: "logo-grid-public",
-    logos: [
-      consortiumLogo(
-        "/assets/consortium/forsvarsmakten.png",
-        "Försvarsmakten",
-        "logo-image-wrap",
-        "partner-logo logo-forsvarsmakten",
-      ),
-      consortiumLogo(
-        "/assets/consortium/myndigheten-for-civilt-forsvar.png",
-        "Myndigheten för civilt försvar",
-        "logo-image-wrap",
-        "partner-logo logo-myndigheten-for-civilt-forsvar",
-      ),
-      consortiumLogo("/assets/consortium/skr.png", "SKR", "logo-image-wrap", "partner-logo logo-skr"),
-      consortiumLogo(
-        "/assets/consortium/socialstyrelsen.png",
-        "Socialstyrelsen",
-        "logo-image-wrap",
-        "partner-logo logo-socialstyrelsen",
-      ),
-      consortiumLogo(
-        "/assets/consortium/socialdepartementet.png",
-        "Socialdepartementet",
-        "logo-image-wrap",
-        "partner-logo logo-socialdepartementet",
-      ),
-      consortiumLogo(
-        "/assets/consortium/forsvarshogskolan.png",
-        "Försvarshögskolan",
-        "logo-image-wrap",
-        "partner-logo logo-forsvarshogskolan",
-      ),
-    ],
-  },
 ];
 
 function formatSize(bytes: number) {
